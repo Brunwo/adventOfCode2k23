@@ -1,24 +1,20 @@
 import java.util.*
 
+// solution moves pointers on part/gears/labels from left of the screen to the right, using a 3 lines window
+// checking middle line for scoring and surrounding lines to analyze the context
 fun main() {
     data class Part(val startIndex:Int , val number : Int, val endIndex : Int)
-//        : Comparable<Part>
-    {
-//        override fun compareTo(other: Part): Int {
-//            return this.startIndex.compareTo(other.startIndex)
-//        }
-    }
 
     data class Line(val data :String) {
 
         val labels =
              Regex("[^0-9.]")
                 .findAll(data)
-                .map { it.range.first }.toSortedSet() // is already sorted
+                .map { it.range.first }.toSortedSet()
 
         val gears = Regex("[*]")
             .findAll(data)
-            .map { it.range.first }.toSortedSet() // is already sorted
+            .map { it.range.first }.toSortedSet()
 
         val parts =
             Regex("[0-9]+")
@@ -57,10 +53,7 @@ fun main() {
             if (!lineUnder().labels.isEmpty())
                 surroundingLabels.addAll(lineUnder().labels.asIterable())
 
-            surroundingLabels = surroundingLabels.toSortedSet() //set should be sorted already when addind sorted sets together
-
-// move pointer from left of the screen to the right, using all labels on the 3 lines window,
-// for each part on the line
+            surroundingLabels = surroundingLabels.toSortedSet()
 
             val labelsI = surroundingLabels.iterator()
             var watermarkIndex = labelsI.next()
@@ -95,7 +88,6 @@ fun main() {
             if (lineUnder().parts.any())
                 surroundingParts.addAll(lineUnder().parts)
 
-            //not a set anymore if we sort as it removes duplicates
             val allParts = surroundingParts.toMutableList().sortedBy { it.startIndex }
 
             val partsI = allParts.iterator()
@@ -106,10 +98,9 @@ fun main() {
                 var firstPartFound: Part? = null
 
                 while (it >= currentPartEvaluation.startIndex - 1) {
-                    if (it >= currentPartEvaluation.startIndex - 1 &&
-                        it <= currentPartEvaluation.endIndex + 1
-                    ) {
 
+                    if (it <= currentPartEvaluation.endIndex + 1
+                    ) {
                         if (firstPartFound != null && currentPartEvaluation != firstPartFound) {
                             return@sumLine firstPartFound.number * currentPartEvaluation.number
                         } else {
@@ -126,7 +117,7 @@ fun main() {
 
 """
     lines : containing  ${middleLine().gears.size} gears no sum found for gear at pos ${it}
-    
+    ${"".padEnd(200).replaceRange(it,it+1,"!")}
     ${lineAbove().data}
     ${middleLine().data.replaceRange(it,it+1,"⊚")}
     ${lineUnder().data}
@@ -163,11 +154,6 @@ fun main() {
     "part2:".println()
     part2(readInput("Day03")).println()
     check(part2(readInput("Day03")) == 83279367)
-
     }
-//
-// fun SortedSet<T>.mergeAll(other : SortedSet<T>) : SortedSet<T> {
-//    val result = this.toMutableSet()
-//    result.addAll(other)
-//    return result.toSortedSet()
-//}
+
+
