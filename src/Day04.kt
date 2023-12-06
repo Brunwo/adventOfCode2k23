@@ -12,7 +12,7 @@ fun main() {
 
     fun part1(input: List<String>): Int {
         return input.sumOf sum@{
-            winCount(it).toDouble().let { 2.0.pow(it - 1.0).toInt().let { it.println(); return@sum it } }
+            winCount(it).toLong().let { 2.0.pow(it - 1.0).toInt().let { it.println(); return@sum it } }
         }
     }
 
