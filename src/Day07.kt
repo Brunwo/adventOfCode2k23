@@ -1,7 +1,7 @@
 fun Map<Char, Int>.reverse() = map { (key, value) -> value to key }.toMap()
 
 interface Rules {
-    var cardValues : Map<Char, Int>
+    var cardValues: Map<Char, Int>
 }
 
 object Part1 : Rules {
@@ -22,12 +22,12 @@ object Part1 : Rules {
     )
 }
 
-object Part2 :Rules {
+object Part2 : Rules {
     override var cardValues: Map<Char, Int> = Part1.cardValues.toMutableMap().also { it['J'] = 1 }
 }
 
-data class ValueAndCount(val value: Int, var count: Int) : Comparable<ValueAndCount> {
-    override fun compareTo(other: ValueAndCount): Int {
+data class CardGroup(val value: Int, var count: Int) : Comparable<CardGroup> {
+    override fun compareTo(other: CardGroup): Int {
         if (count == other.count)
             return value.compareTo(other.value)
         return count.compareTo(other.count)
@@ -41,10 +41,10 @@ data class Hand(val hand: String, val score: Int, val useJoker: Boolean = false)
     private val sortedHand = if (!useJoker) sortHandPt1() else getSortedHandPart2()
 
     private fun sortHandPt1() = hand.map { card ->
-        ValueAndCount(rules.cardValues[card]!!, hand.count { it == card })
+        CardGroup(rules.cardValues[card]!!, hand.count { it == card })
     }.toSortedSet().reversed()
 
-    private fun getSortedHandPart2(): List<ValueAndCount> {
+    private fun getSortedHandPart2(): List<CardGroup> {
 
         val sortedHand = sortHandPt1().toMutableList()
 
@@ -61,47 +61,38 @@ data class Hand(val hand: String, val score: Int, val useJoker: Boolean = false)
         return sortedHand
     }
 
-    // we square to put high cardinality families on top (4 > 3+2)
-
+    // we square to put high cardinality families on top, ie 4 same cards > 3+2)
     private val familyScore = sortedHand.sumOf { it.count * it.count - 1 }
     private val unsortedHandValues = hand.map { card -> rules.cardValues[card]!! }
 
     fun printSorted() {
         sortedHand.forEach {
-//            print(Rules.reverseMap[it.value].toString().repeat(it.count))
+            print(rules.cardValues.reverse()[it.value].toString().repeat(it.count))
         }
         println("")
     }
 
-    fun printSortedJ() {
-        buildString {
-            getSortedHandPart2().forEach {
-//                this.append(Rules.reverseMapJ[it.value].toString().repeat(it.count))
-            }
-        }.println()
-    }
-
     override fun compareTo(other: Hand): Int {
 
-    val scoreCompare = familyScore.compareTo(other.familyScore)
-    if (scoreCompare != 0)
-        return scoreCompare
+        val scoreCompare = familyScore.compareTo(other.familyScore)
+        if (scoreCompare != 0)
+            return scoreCompare
 
-    unsortedHandValues.forEachIndexed { index, value ->
-        val compare = value.compareTo(other.unsortedHandValues[index])
-        if (compare != 0)
-            return compare
+        unsortedHandValues.forEachIndexed { index, value ->
+            val compare = value.compareTo(other.unsortedHandValues[index])
+            if (compare != 0)
+                return compare
+        }
+        return 0
     }
-    return 0
-    }
-        //poker rules, not OK
+    //poker rules, not OK
 //        sortedHand.forEachIndexed { index, valueAndCount ->
 //            val res = valueAndCount.compareTo(other.sortedHand.elementAt(index))
 //                if (res != 0)
 //                    return res
 //            }
 //        return 0
-    }
+}
 
 fun main() {
 
@@ -113,47 +104,32 @@ fun main() {
         }
     }
 
-    fun part1(input: List<String>): Long {
-
+    fun List<Hand>.getTotalScore(): Long {
         var total: Long = 0
-
-        parse(input).map { (score, hand) -> Hand(hand, score) }
-            .sorted().forEachIndexed { index, hand ->
-//            hand.printSorted()
-                val score = hand.score * (index + 1)
-
-                total += score //hand.score * (index + 1)
-//            "${hand.score} * ${index+1} ".println()
-//                "$score".println()
-            }
+        this.sorted().forEachIndexed { index, hand ->
+            val score = hand.score * (index + 1)
+            total += score
+        }
         return total
     }
 
-    fun part2(input: List<String>): Int {
+    fun part1(input: List<String>): Long {
+        return parse(input).map { (score, hand) -> Hand(hand, score) }.getTotalScore()
+    }
 
-        var total: Int = 0
-        parse(input).map { (score, hand) -> Hand(hand, score, useJoker = true) }
-            .toSortedSet(Hand::compareTo).forEachIndexed { index, hand ->
-                hand.printSortedJ()
-
-                val score = hand.score * (index + 1)
-
-                total += score //hand.score * (index + 1)
-//                "${hand.score} * ${index+1} ".println()
-//                "$score".println()
-            }
-        return total
+    fun part2(input: List<String>): Long {
+        return parse(input).map { (score, hand) -> Hand(hand, score, useJoker = true) }.getTotalScore()
     }
 
     // test if implementation meets criteria from the description, like:
     //
     val testInput = readInput("Day07_test")
     check(part1(testInput).toInt() == 6440) // (765 * 1 + 220 * 2 + 28 * 3 + 684 * 4 + 483 * 5)
-    check(part2(testInput) == 5905)
+    check(part2(testInput).toInt() == 5905)
 
 
     check(part1(readInput("Day07")).toInt() == 246795406) { "part 1" }
-    check(part2(readInput("Day07")) == 249356515) { "part 2" }
+    check(part2(readInput("Day07")).toInt() == 249356515) { "part 2" }
 
     "part1:".println()
     part1(readInput("Day07")).println()
