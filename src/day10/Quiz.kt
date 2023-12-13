@@ -181,7 +181,7 @@ fun List<Tile>.getNests(checkLeft: Int, path: List<Tile>): Collection<Tile> {
             extensionCandidates.removeAll(nests)
             extensionCandidates.removeAll(path)
 
-            nests.forEach() {
+            nests.forEach {
                 Tile.Direction.entries.map { it.vector }.map { vector -> it.pos + vector }
                     .filter { !nests.map { it.pos }.contains(it) && !path.map { it.pos }.contains(it) } // 20% faster
                     .forEach { testPos ->

@@ -8,6 +8,9 @@ import kotlin.io.path.readLines
  */
 fun readInput(name: String) = Path("src/$name.txt").readLines()
 
+fun readInputFromLauncher(name: String) = Path("src/$packageName/$name.txt").readLines()
+
+
 /**
  * Converts string to md5 hash.
  */
@@ -19,3 +22,7 @@ fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteA
  * The cleaner shorthand for printing output.
  */
 fun Any?.println() = println(this)
+
+
+val packageName = System.getProperties().filter { it.key.toString().contains("command") }
+    .map { it.value.toString().split('.')[0] }.first()
