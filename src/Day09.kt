@@ -23,7 +23,6 @@
         val entries = input.map { line ->
             "line $line".println()
             line.split(' ').map { it.toInt() } }
-        val placeholders = emptyList<Int>()
 
         return entries.sumOf { line ->
             val seq = generateSequence(line) {
